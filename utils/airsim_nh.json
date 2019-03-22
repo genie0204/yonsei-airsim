@@ -1,0 +1,60 @@
+{
+    "nodes":[
+        {
+            "name":1,
+            "pos_x":128,
+            "pos_y":-128,
+            "connected_nodes": [2,4]
+        },{
+            "name":2,
+            "pos_x":128,
+            "pos_y":0,
+            "connected_nodes": [1,3,5]
+        },{
+            "name":3,
+            "pos_x":128,
+            "pos_y":128,
+            "connected_nodes": [2,8]
+        },{
+            "name":4,
+            "pos_x":80,
+            "pos_y":-128,
+            "connected_nodes": [1,5,6]
+        },{
+            "name":5,
+            "pos_x":80,
+            "pos_y":0,
+            "connected_nodes": [2,4,7]
+        },{
+            "name":6,
+            "pos_x":0,
+            "pos_y":-128,
+            "connected_nodes": [4,7,9]
+        },{
+            "name":7,
+            "pos_x":0,
+            "pos_y":0,
+            "connected_nodes": [5,6,8,10]
+        },{
+            "name":8,
+            "pos_x":0,
+            "pos_y":128,
+            "connected_nodes": [3,7,11]
+        },{
+            "name":9,
+            "pos_x":-128,
+            "pos_y":-128,
+            "connected_nodes": [6,10]
+        },{
+            "name":10,
+            "pos_x":-128,
+            "pos_y":0,
+            "connected_nodes": [7,9,11]
+        },{
+            "name":11,
+            "pos_x":-128,
+            "pos_y":128,
+            "connected_nodes": [8,10]
+        }
+    ]
+}
