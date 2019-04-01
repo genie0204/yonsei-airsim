@@ -5,22 +5,13 @@ import time
 import sys
 
 import math
-import setup_path 
+# import setup_path 
 import airsim
 import numpy as np
 
-
-
-
-
-
 class PID:
 
-
-
     def __init__(self, dt=0.05, Kp=0, Ki=0, Kd=0):
-
-
 
         self.dt = dt
 
@@ -32,11 +23,7 @@ class PID:
 
         self.reset()
 
-
-
     def feedback(self, err):
-
-
 
         if type(self.err_p) == type(None):
 

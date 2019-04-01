@@ -9,7 +9,7 @@ class Astar():
         with open(json_file) as f:
             self.nodes = json.load(f)['nodes']
 
-        self.road_shift = 4
+        self.road_shift = 2
         self.get_random_start_end_points()
 
     def cal_x_y(self, _node_1, _node_2):
@@ -96,7 +96,7 @@ class Astar():
             self.close_list.append(min_node)
 
             if min_node['name'] == -1:
-                print("Terminate")
+                # print("Terminate")
                 
                 _cur_node = -1
                 self.node_routes = [next(node for node in self.close_list if node["name"] == _cur_node)]
@@ -121,7 +121,8 @@ class Astar():
         self.get_path_coords()
         self.get_corner_path()
 
-        return self.start_point, self.end_point, self.coords
+        return self.end_point, self.start_point, self.coords
+        # 스타트 엔드가 바뀜.
 
     def get_path_coords(self):
         self.straight_coords = []
@@ -136,32 +137,32 @@ class Astar():
                     if n['pos_y'] <= pn['pos_y']:
                         for y in range(n['pos_y'], pn['pos_y']):
                             # print(n['name'],'y:', y)
-                            _coord = (n['pos_x']+self.road_shift, y)
-                            self.straight_coords.append(_coord)
-                            xs.append(n['pos_x']+self.road_shift)
-                            ys.append(y)
-                    else:
-                        for y in range(n['pos_y'], pn['pos_y'], -1):
-                            # print(n['name'],'y:', y)
                             _coord = (n['pos_x']-self.road_shift, y)
                             self.straight_coords.append(_coord)
                             xs.append(n['pos_x']-self.road_shift)
                             ys.append(y)
+                    else:
+                        for y in range(n['pos_y'], pn['pos_y'], -1):
+                            # print(n['name'],'y:', y)
+                            _coord = (n['pos_x']+self.road_shift, y)
+                            self.straight_coords.append(_coord)
+                            xs.append(n['pos_x']+self.road_shift)
+                            ys.append(y)
                 elif n['pos_y'] == pn['pos_y']:
                     if n['pos_x'] <= pn['pos_x']:
                         for x in range(n['pos_x'], pn['pos_x']):
-                            print(n['name'],'x:', x)
-                            _coord = (x, n['pos_y']-self.road_shift)
-                            self.straight_coords.append(_coord)
-                            xs.append(x)
-                            ys.append(n['pos_y']-self.road_shift)
-                    else:
-                        for x in range(n['pos_x'], pn['pos_x'], -1):
-                            print(n['name'],'x:', x)
+                            # print(n['name'],'x:', x)
                             _coord = (x, n['pos_y']+self.road_shift)
                             self.straight_coords.append(_coord)
                             xs.append(x)
                             ys.append(n['pos_y']+self.road_shift)
+                    else:
+                        for x in range(n['pos_x'], pn['pos_x'], -1):
+                            # print(n['name'],'x:', x)
+                            _coord = (x, n['pos_y']-self.road_shift)
+                            self.straight_coords.append(_coord)
+                            xs.append(x)
+                            ys.append(n['pos_y']-self.road_shift)
                 
         
         plt.scatter(ref_x, ref_y)
@@ -196,47 +197,49 @@ class Astar():
 
                 if (v1_x * v2_x + v1_y * v2_y)/(size_v1*size_v2) > 0 and (v1_x * v2_x + v1_y * v2_y)/(size_v1*size_v2) < 1:
                     # Left turn
+                    
                     self.coords.append(_coord)
                     if v1_x == 0 or v1_y == 0:
+                        # print("Left Turn")
                         if v2_x > 0 and v2_y > 0:
-                            _center_x = _x
-                            _center_y = _next_y
-
-                            for degree_intv in range(15,90,15):
-                            
-                                _circle_x = _center_x+(self.road_shift*math.cos(math.radians(degree_intv)))
-                                _circle_y = _center_y-(self.road_shift*math.sin(math.radians(degree_intv)))
-                                # print(degree_intv,(_circle_x, _circle_y))
-                                self.coords.append((_circle_x, _circle_y))
-                        elif v2_x > 0 and v2_y < 0:
                             _center_x = _next_x
                             _center_y = _y
 
                             for degree_intv in range(15,90,15):
                             
-                                _circle_x = _center_x-(self.road_shift*math.cos(math.pi*3/2 + math.radians(degree_intv)))
-                                _circle_y = _center_y+(self.road_shift*math.sin(math.pi*3/2 + math.radians(degree_intv)))
+                                _circle_x = _center_x-(self.road_shift*math.cos(math.radians(degree_intv)))
+                                _circle_y = _center_y+(self.road_shift*math.sin(math.radians(degree_intv)))
+                                # print(degree_intv,(_circle_x, _circle_y))
+                                self.coords.append((_circle_x, _circle_y))
+                        elif v2_x > 0 and v2_y < 0:
+                            _center_x = _x
+                            _center_y = _next_y
+
+                            for degree_intv in range(15,90,15):
+                            
+                                _circle_x = _center_x+(self.road_shift*math.cos(math.pi*3/2 + math.radians(degree_intv)))
+                                _circle_y = _center_y-(self.road_shift*math.sin(math.pi*3/2 + math.radians(degree_intv)))
 
                                 self.coords.append((_circle_x, _circle_y))
                                 
                         elif v2_x < 0 and v2_y > 0:
-                            _center_x = _next_x
-                            _center_y = _y
-
-                            for degree_intv in range(15,90,15):
-                            
-                                _circle_x = _center_x-(self.road_shift*math.cos(math.pi/2 + math.radians(degree_intv)))
-                                _circle_y = _center_y+(self.road_shift*math.sin(math.pi/2 + math.radians(degree_intv)))
-                                # print(degree_intv,(_circle_x, _circle_y))
-                                self.coords.append((_circle_x, _circle_y))
-                        elif v2_x < 0 and v2_y < 0:
                             _center_x = _x
                             _center_y = _next_y
 
                             for degree_intv in range(15,90,15):
                             
-                                _circle_x = _center_x+(self.road_shift*math.cos(math.pi + math.radians(degree_intv)))
-                                _circle_y = _center_y-(self.road_shift*math.sin(math.pi + math.radians(degree_intv)))
+                                _circle_x = _center_x+(self.road_shift*math.cos(math.pi/2 + math.radians(degree_intv)))
+                                _circle_y = _center_y-(self.road_shift*math.sin(math.pi/2 + math.radians(degree_intv)))
+                                # print(degree_intv,(_circle_x, _circle_y))
+                                self.coords.append((_circle_x, _circle_y))
+                        elif v2_x < 0 and v2_y < 0:
+                            _center_x = _next_x
+                            _center_y = _y
+
+                            for degree_intv in range(15,90,15):
+                            
+                                _circle_x = _center_x-(self.road_shift*math.cos(math.pi + math.radians(degree_intv)))
+                                _circle_y = _center_y+(self.road_shift*math.sin(math.pi + math.radians(degree_intv)))
                                 # print(degree_intv,(_circle_x, _circle_y))
                                 self.coords.append((_circle_x, _circle_y))
                             
@@ -281,45 +284,45 @@ class Astar():
 
                         temp_circle_coords = []
                         if v2_x > 0 and v2_y > 0:
-                            _center_x = _x - 1*self.road_shift
-                            _center_y = _next_y + 1*self.road_shift
-
-                            for degree_intv in range(15,90,15):
-                            
-                                _circle_x = _center_x+(self.road_shift*math.cos(math.radians(degree_intv)))
-                                _circle_y = _center_y-(self.road_shift*math.sin(math.radians(degree_intv)))
-                                # print(degree_intv,(_circle_x, _circle_y))
-                                temp_circle_coords.append((_circle_x, _circle_y))
-                                
-                        elif v2_x > 0 and v2_y < 0:
                             _center_x = _next_x + 1*self.road_shift
-                            _center_y = _y + 1*self.road_shift
-
-                            for degree_intv in range(15,90,15):
-                            
-                                _circle_x = _center_x-(self.road_shift*math.cos(math.pi*3/2 + math.radians(degree_intv)))
-                                _circle_y = _center_y+(self.road_shift*math.sin(math.pi*3/2 + math.radians(degree_intv)))
-
-                                temp_circle_coords.append((_circle_x, _circle_y))
-                                
-                        elif v2_x < 0 and v2_y > 0:
-                            _center_x = _next_x - 1*self.road_shift
                             _center_y = _y - 1*self.road_shift
 
                             for degree_intv in range(15,90,15):
                             
-                                _circle_x = _center_x-(self.road_shift*math.cos(math.pi/2 + math.radians(degree_intv)))
-                                _circle_y = _center_y+(self.road_shift*math.sin(math.pi/2 + math.radians(degree_intv)))
+                                _circle_x = _center_x-(self.road_shift*math.cos(math.radians(degree_intv)))
+                                _circle_y = _center_y+(self.road_shift*math.sin(math.radians(degree_intv)))
                                 # print(degree_intv,(_circle_x, _circle_y))
                                 temp_circle_coords.append((_circle_x, _circle_y))
-                        elif v2_x < 0 and v2_y < 0:
-                            _center_x = _x + 1*self.road_shift
+                                
+                        elif v2_x > 0 and v2_y < 0:
+                            _center_x = _x - 1*self.road_shift
                             _center_y = _next_y - 1*self.road_shift
 
                             for degree_intv in range(15,90,15):
                             
-                                _circle_x = _center_x+(self.road_shift*math.cos(math.pi + math.radians(degree_intv)))
-                                _circle_y = _center_y-(self.road_shift*math.sin(math.pi + math.radians(degree_intv)))
+                                _circle_x = _center_x+(self.road_shift*math.cos(math.pi*3/2 + math.radians(degree_intv)))
+                                _circle_y = _center_y-(self.road_shift*math.sin(math.pi*3/2 + math.radians(degree_intv)))
+
+                                temp_circle_coords.append((_circle_x, _circle_y))
+                                
+                        elif v2_x < 0 and v2_y > 0:
+                            _center_x = _x + 1*self.road_shift
+                            _center_y = _next_y + 1*self.road_shift
+
+                            for degree_intv in range(15,90,15):
+                            
+                                _circle_x = _center_x+(self.road_shift*math.cos(math.pi/2 + math.radians(degree_intv)))
+                                _circle_y = _center_y-(self.road_shift*math.sin(math.pi/2 + math.radians(degree_intv)))
+                                # print(degree_intv,(_circle_x, _circle_y))
+                                temp_circle_coords.append((_circle_x, _circle_y))
+                        elif v2_x < 0 and v2_y < 0:
+                            _center_x = _next_x - 1*self.road_shift
+                            _center_y = _y + 1*self.road_shift
+
+                            for degree_intv in range(15,90,15):
+                            
+                                _circle_x = _center_x-(self.road_shift*math.cos(math.pi + math.radians(degree_intv)))
+                                _circle_y = _center_y+(self.road_shift*math.sin(math.pi + math.radians(degree_intv)))
                                 # print(degree_intv,(_circle_x, _circle_y))
                                 temp_circle_coords.append((_circle_x, _circle_y))
 
