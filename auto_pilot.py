@@ -19,23 +19,9 @@ if __name__=='__main__':
     client.setCarControls(car_controls)
 
     astar = Astar(json_file="./utils/airsim_nh.json")
-    start_point, end_point, coordinates = astar.compute()
+    start_point, start_direction, coordinates = astar.compute()
 
-    start_direction_x = coordinates[1][0] - coordinates[0][0]
-    start_direction_y = coordinates[1][1] - coordinates[0][1]
-    print(start_direction_x, start_direction_y, coordinates[0][0],coordinates[0][1])
-    if (start_direction_x < 0 and start_direction_y == 0):
-        start_direction = math.radians(180)
-    elif (start_direction_x > 0 and start_direction_y == 0):
-        start_direction = math.radians(0)
-    elif (start_direction_x == 0 and start_direction_y > 0):
-        start_direction = math.radians(90)
-    elif (start_direction_x == 0 and start_direction_y < 0):
-        start_direction = math.radians(-90)
-    
-
-    car_controls.position = airsim.Vector3r(coordinates[0][0],coordinates[0][1],-1)
-    # car_controls.position = airsim.Vector3r(0,0,-1)
+    car_controls.position = airsim.Vector3r(start_point[0],start_point[1],-1)
     car_controls.heading = airsim.utils.to_quaternion(0,0,start_direction)
     car_controls.pose = airsim.Pose(car_controls.position,car_controls.heading)
 
@@ -83,7 +69,7 @@ if __name__=='__main__':
         #e2_y = orientation_y/orientation_abs        
         orientation_z = (90-math.degrees(math.acos(car_state.kinematics_estimated.orientation.z_val)))*2
         
-        target_degree = math.degrees(math.atan2(e1_y-e2_y,e1_x-e2_x))
+        target_degree = math.degrees(math.atan2(e1_y,e1_x-e2_x))
         err_degree = target_degree - orientation_z
         
 

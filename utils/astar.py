@@ -92,37 +92,65 @@ class Astar():
 
     def compute(self):
         while True:
-            min_node = min(self.open_list, key=lambda x:x['F'])
-            self.close_list.append(min_node)
+            while True:
+                min_node = min(self.open_list, key=lambda x:x['F'])
+                self.close_list.append(min_node)
 
-            if min_node['name'] == -1:
-                # print("Terminate")
+                if min_node['name'] == -1:
+                    # print("Terminate")
+                    
+                    _cur_node = -1
+                    self.node_routes = [next(node for node in self.close_list if node["name"] == _cur_node)]
+                    while True:
+                        if _cur_node == 0:
+                            break
+                        parent_node = next(node for node in self.close_list if node["name"] == _cur_node)['parent_node']
+                        self.node_routes.append(next(node for node in self.close_list if node["name"] == parent_node))
+                        _cur_node = parent_node
+
+                    break
                 
-                _cur_node = -1
-                self.node_routes = [next(node for node in self.close_list if node["name"] == _cur_node)]
-                while True:
-                    if _cur_node == 0:
-                        break
-                    parent_node = next(node for node in self.close_list if node["name"] == _cur_node)['parent_node']
-                    self.node_routes.append(next(node for node in self.close_list if node["name"] == parent_node))
-                    _cur_node = parent_node
+                self.open_list[:] = [d for d in self.open_list if d.get('name') != min_node['name']]          
 
-                break
+                target_nodes = self.get_unique_nodes(min_node['connected_nodes'], self.close_list)
+                
+                for i, n in enumerate(target_nodes):
+                    target_nodes[i] = self.cal_f_g_h(min_node, n, self.end_point)
+
+                self.open_list += target_nodes
+
+            self.get_path_coords()
+            self.get_corner_path()
+
+            _s_point = self.coords[0]
+
+            # When car is located near the corner, compute again.
+            _start_direction = self.get_start_direction(self.coords)
+            self.coords.pop(0)
+
+            if _start_direction is not None:
+                break    
+        
+        return _s_point, _start_direction, self.coords
             
-            self.open_list[:] = [d for d in self.open_list if d.get('name') != min_node['name']]          
 
-            target_nodes = self.get_unique_nodes(min_node['connected_nodes'], self.close_list)
-            
-            for i, n in enumerate(target_nodes):
-                target_nodes[i] = self.cal_f_g_h(min_node, n, self.end_point)
+    def get_start_direction(self, coordinates):
+        start_direction_x = coordinates[1][0] - coordinates[0][0]
+        start_direction_y = coordinates[1][1] - coordinates[0][1]
+        # print(start_direction_x, start_direction_y, coordinates[0][0],coordinates[0][1])
+        
+        start_direction = None
+    
+        if (start_direction_x < 0 and start_direction_y == 0):
+            start_direction = math.radians(180)
+        elif (start_direction_x > 0 and start_direction_y == 0):
+            start_direction = math.radians(0)
+        elif (start_direction_x == 0 and start_direction_y > 0):
+            start_direction = math.radians(90)
+        elif (start_direction_x == 0 and start_direction_y < 0):
+            start_direction = math.radians(-90)
 
-            self.open_list += target_nodes
-
-        self.get_path_coords()
-        self.get_corner_path()
-
-        return self.end_point, self.start_point, self.coords
-        # 스타트 엔드가 바뀜.
+        return start_direction
 
     def get_path_coords(self):
         self.straight_coords = []
