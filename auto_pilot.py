@@ -19,13 +19,17 @@ if __name__=='__main__':
     client.setCarControls(car_controls)
 
     astar = Astar(json_file="./utils/airsim_nh.json")
-    start_point, start_direction, coordinates = astar.compute()
 
-    car_controls.position = airsim.Vector3r(start_point[0],start_point[1],-1)
-    car_controls.heading = airsim.utils.to_quaternion(0,0,start_direction)
-    car_controls.pose = airsim.Pose(car_controls.position,car_controls.heading)
+    while True:
+        start_point, start_direction, coordinates = astar.compute()
 
-    client.simSetVehiclePose(car_controls.pose, True,vehicle_name="Car1")
+        car_controls.position = airsim.Vector3r(start_point[0],start_point[1],-1)
+        car_controls.heading = airsim.utils.to_quaternion(0,0,start_direction)
+        car_controls.pose = airsim.Pose(car_controls.position,car_controls.heading)
+
+        client.simSetVehiclePose(car_controls.pose, True,vehicle_name="Car1")
+        exit(0)
+        time.sleep(5)
 
     exit(0)
 

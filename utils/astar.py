@@ -359,7 +359,7 @@ class Astar():
                         for _c in temp_circle_coords:
                             rt_corner_coords.append(_c)
 
-                        for i_ in range(-(self.road_shift+1)*2,(self.road_shift+1)*1):
+                        for i_ in range(-(self.road_shift)*2,(self.road_shift+1)):
                             rm_index.append(i+i_+1*self.road_shift)
                         # print("rm_index", rm_index)
 
@@ -376,9 +376,10 @@ class Astar():
 
                     _rc_cnt += 1
 
+            print(self.coords)
 
-        # plt.scatter([c[0] for c in self.coords], [c[1] for c in self.coords])
-        # plt.show()
+        plt.scatter([c[0] for c in self.coords], [c[1] for c in self.coords])
+        plt.show()
                 
     def get_unique_nodes(self, name_list_1, list_2):
         name_list_2 = []
