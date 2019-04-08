@@ -25,25 +25,35 @@ class Astar():
 
         return _pos_x, _pos_y
 
-    def get_random_start_end_points(self):
-        _node_1 = random.choice(self.nodes)
-        _conn_node = random.choice(_node_1['connected_nodes'])
-        _node_2 = next(node for node in self.nodes if node["name"] == _conn_node)
+    def get_random_start_end_points(self, start=True):
+        if start == True:
+            _node_1 = random.choice(self.nodes)
+            _conn_node = random.choice(_node_1['connected_nodes'])
+            _node_2 = next(node for node in self.nodes if node["name"] == _conn_node)
 
-        _pos_x_s, _pos_y_s = self.cal_x_y(_node_1, _node_2)
+            _pos_x_s, _pos_y_s = self.cal_x_y(_node_1, _node_2)
 
-        self.start_point = {
-            'name': 0,
-            'pos_x': _pos_x_s,
-            'pos_y': _pos_y_s,
-            'connected_nodes': [_node_1['name'], _node_2['name']],
-            'F':0,
-            'G':0,
-            'H':0,
-            'parent_node':None
-        }
+            self.start_point = {
+                'name': 0,
+                'pos_x': _pos_x_s,
+                'pos_y': _pos_y_s,
+                'connected_nodes': [_node_1['name'], _node_2['name']],
+                'F':0,
+                'G':0,
+                'H':0,
+                'parent_node':None
+            }
+        else:
+            self.start_point = self.end_point
+            self.start_point['name'] = 0
+            self.start_point['F'] = 0
+            self.start_point['G'] = 0
+            self.start_point['H'] = 0
+            self.start_point['parent_node'] = None
 
-        
+            _node_1 = next(node for node in self.nodes if node["name"] == self.start_point['connected_nodes'][0])
+            _node_2 = next(node for node in self.nodes if node["name"] == self.start_point['connected_nodes'][1])
+
         # self.close_list = []
 
         while True:
@@ -90,7 +100,10 @@ class Astar():
 
         return n
 
-    def compute(self):
+    def compute(self, path_continue=False):
+        if path_continue == True:
+            self.get_random_start_end_points(start=False)
+            
         while True:
             while True:
                 min_node = min(self.open_list, key=lambda x:x['F'])
@@ -376,10 +389,10 @@ class Astar():
 
                     _rc_cnt += 1
 
-            print(self.coords)
+            # print(self.coords)
 
-        plt.scatter([c[0] for c in self.coords], [c[1] for c in self.coords])
-        plt.show()
+        # plt.scatter([c[0] for c in self.coords], [c[1] for c in self.coords])
+        # plt.show()
                 
     def get_unique_nodes(self, name_list_1, list_2):
         name_list_2 = []
