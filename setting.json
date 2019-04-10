@@ -1,0 +1,130 @@
+{
+  "SeeDocsAt": "https://github.com/Microsoft/AirSim/blob/master/docs/settings.md",
+  "SettingsVersion": 1.2,
+  "SimMode": "Car",
+  "ClockSpeed": 1.0,
+  "Recording": {
+    "RecordOnMove": false,
+    "RecordInterval": 0.05,
+    "Cameras": [
+      {
+        "CameraName": "MyCamera1",
+        "ImageType": 0,
+        "PixelsAsFloat": false,
+        "Compress": true
+      },
+      {
+        "CameraName": "MyCamera2",
+        "ImageType": 0,
+        "PixelsAsFloat": false,
+        "Compress": true
+      },
+      {
+        "CameraName": "MyCamera3",
+        "ImageType": 0,
+        "PixelsAsFloat": false,
+        "Compress": true
+      },
+      {
+        "CameraName": "MyCamera4",
+        "ImageType": 0,
+        "PixelsAsFloat": false,
+        "Compress": true
+      }
+
+
+    ]
+  },
+  "SubWindows": [
+    {
+      "WindowID": 0,
+      "ImageType": 0,
+      "CameraName": "MyCamera2",
+      "Visible": true
+    },
+    {
+      "WindowID": 1,
+      "ImageType": 0,
+      "CameraName": "MyCamera1",
+      "Visible": true
+    },
+    {
+      "WindowID": 2,
+      "ImageType": 0,
+      "CameraName": "MyCamera3",
+      "Visible": true
+    }
+  ],
+  "Vehicles": {
+    "Car1": {
+      "VehicleType": "PhysXCar",
+      "Cameras": {
+        "MyCamera1": {
+          "CaptureSettings": [
+            {
+              "ImageType": 0,
+              "Width": 256,
+              "Height": 144,
+              "FOV_Degrees": 100
+            }
+          ],
+          "X": 1.87,
+          "Y": 0,
+          "Z": -1.1,
+          "Pitch": -15,
+          "Roll": 0,
+          "Yaw": 0
+        },
+        "MyCamera2": {
+          "CaptureSettings": [
+            {
+              "ImageType": 0,
+              "Width": 256,
+              "Height": 144,
+              "FOV_Degrees": 100
+            }
+          ],
+          "X": 0,
+          "Y": -0.55,
+          "Z": -1.6,
+          "Pitch": -15,
+          "Roll": 0,
+          "Yaw": -90
+        },
+        "MyCamera3": {
+          "CaptureSettings": [
+            {
+              "ImageType": 0,
+              "Width": 256,
+              "Height": 144,
+              "FOV_Degrees": 100
+            }
+          ],
+          "X": 0,
+          "Y": 0.55,
+          "Z": -1.6,
+          "Pitch": -15,
+          "Roll": 0,
+          "Yaw": 90
+        },
+        "MyCamera4": {
+          "CaptureSettings": [
+            {
+              "ImageType": 0,
+              "Width": 256,
+              "Height": 144,
+              "FOV_Degrees": 100
+            }
+          ],
+          "X": -1.97,
+          "Y": 0,
+          "Z": -1.1,
+          "Pitch": -15,
+          "Roll": 0,
+          "Yaw": 180
+        }
+      }
+
+    }
+  }
+}
