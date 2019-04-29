@@ -61,12 +61,11 @@ class CarController:
         self.coord_index = 1
         self.coordinates = []
 
-        self.pid_distance_staright= PID(dt=0.05, Kp=1, Ki=0, Kd=0.001)
-        self.pid_degrees_straight = PID(dt=0.05, Kp=1, Ki=0, Kd=0.001)
+        self.pid_distance_staright= PID(dt=0.05, Kp=0.8, Ki=0, Kd=0.001)
+        self.pid_degrees_straight = PID(dt=0.05, Kp=2, Ki=0, Kd=0.001)
         self.pid_distance_curve = PID(dt=0.05, Kp=0.1, Ki=0, Kd=0.001)
-        self.pid_degrees_curve = PID(dt=0.05, Kp=3, Ki=0, Kd=1)
-        self.pid_distance_escape= PID(dt=0.05, Kp=0.2, Ki=0.001, Kd=0.001)
-        self.pid_degrees_escape = PID(dt=0.05, Kp=3, Ki=0, Kd=1)
+        self.pid_degrees_curve = PID(dt=0.05, Kp=4, Ki=0, Kd=1)
+      
 
     def setPosition(self, point, direction):
         self.car_controls.position = airsim.Vector3r(point[0],point[1],0)
@@ -102,29 +101,26 @@ class CarController:
     def compute_1(self, coordinates):
         if len(self.coordinates) == 0:
             self.coordinates = coordinates
+
+        else:
+            done = False    
         
         car_state = self.client.getCarState()
 
         pos_x = car_state.kinematics_estimated.position.x_val
         pos_y = car_state.kinematics_estimated.position.y_val
         target = airsim.Vector3r(coordinates[self.coord_index][0],coordinates[self.coord_index][1],0)
-        target_1 = airsim.Vector3r(coordinates[self.coord_index+1][0],coordinates[self.coord_index+1][1],0)
-           
         target_x = target.x_val
-        target_1_x = target_1.x_val
         target_y = target.y_val
-        target_1_y = target_1.y_val
-        print ("target_1", target_1_x ,target_1_y) 
+        
         
         
         print("target", target_x,target_y)
         print("pos", pos_x, pos_y)
         err_x = target_x - pos_x
-        err_x_1 = target_1_x - pos_x
         err_y = target_y - pos_y
-        err_y_1 = target_1_y - pos_y
         err_distance = math.sqrt(err_x ** 2 + err_y ** 2)
-        # print (err_distance)
+        
        
 
         if self.coord_index == len(coordinates):
@@ -145,7 +141,7 @@ class CarController:
             orientation_z_convert = math.pi*2 + orientation_z
         else :
             orientation_z_convert = orientation_z
-        target_degree = math.atan2(err_y_1,err_x_1)
+        target_degree = math.atan2(err_y,err_x)
         if target_degree < 0 :
             target_degree_convert = math.pi*2 + target_degree
         else :
@@ -162,28 +158,34 @@ class CarController:
         
 
         # 짜잘한 움직임을 제한하기 위해 0도 근처 값 제한
-        if abs(err_degree_convert) < math.pi /30:
+        if abs(err_degree_convert) < math.pi /24:
             err_degree_convert = 0
     
         try:
-            # print(math.degrees(err_degree), math.degrees(target_degree), math.degrees(orientation_z))
-            coordinates_degree = math.degrees(math.atan2(coordinates[self.coord_index+3
-            ][1]-coordinates[self.coord_index+2][1],
-                                                coordinates[self.coord_index+3][0]-coordinates[self.coord_index+2][0]))
+            print(math.degrees(err_degree), math.degrees(target_degree), math.degrees(orientation_z))
+            coordinates_degree = math.degrees(math.atan2(coordinates[self.coord_index+6][1]
+            -coordinates[self.coord_index+5][1],coordinates[self.coord_index+6][0]-coordinates[self.coord_index+5][0]))
         except:
             coordinates_degree = 0
 
         
     
-        distance = self.pid_distance_staright.feedback(err_distance)
+        distance = 0.5
+        print(distance)
         degree = self.pid_degrees_straight.feedback(err_degree_convert)
         if (err_distance<0.5) :
             self.coord_index += 1
         
+        if self.coord_index == len(coordinates)-1:
+            done = True
+            self.coordinates = []
+        else:
+            done = False
         
+        print("done",done)
         
         self.moveCar(distance, degree)
-        d = self.getDistanceFromStraightLine((pos_x, pos_y))
+        d = 0
 
         print ("target", math.degrees(target_degree_convert))
         print ("orentation", math.degrees(orientation_z_convert))
@@ -198,33 +200,46 @@ class CarController:
         if len(self.coordinates) == 0:
             self.coordinates = coordinates
         
+        else:
+            done = False
         car_state = self.client.getCarState()
 
         pos_x = car_state.kinematics_estimated.position.x_val
         pos_y = car_state.kinematics_estimated.position.y_val
         target = airsim.Vector3r(coordinates[self.coord_index][0],coordinates[self.coord_index][1],0)
-        target_1 = airsim.Vector3r(coordinates[self.coord_index+3][0],coordinates[self.coord_index+3][1],0)    
-        target_x = target.x_val
-        target_1_x = target_1.x_val
-        target_y = target.y_val
-        target_1_y = target_1.y_val
-        print("++++++++++++++++++++curve++++++++++++++++++")
-        
-        print("target", target_x,target_y)
-        print("pos", pos_x, pos_y)
-        err_x = target_x - pos_x
-        err_x_1 = target_1_x - pos_x
-        err_y = target_y - pos_y
-        err_y_1 = target_1_y - pos_y
-        err_distance = math.sqrt(err_x ** 2 + err_y ** 2)
-        # print (err_distance)
-       
 
-        if self.coord_index == len(coordinates):
-            done = True
-            self.coordinates = []
-        else:
-            done = False
+        target_1 = airsim.Vector3r(coordinates[self.coord_index+1][0],coordinates[self.coord_index+1][1],0)
+
+           
+
+        target_x = target.x_val
+
+        target_1_x = target_1.x_val
+
+        target_y = target.y_val
+
+        target_1_y = target_1.y_val
+
+        print ("target_1", target_1_x ,target_1_y) 
+
+        
+
+        
+
+        print("target", target_x,target_y)
+
+        print("pos", pos_x, pos_y)
+
+        err_x = target_x - pos_x
+
+        err_x_1 = target_1_x - pos_x
+
+        err_y = target_y - pos_y
+
+        err_y_1 = target_1_y - pos_y
+
+        err_distance = math.sqrt(err_x ** 2 + err_y ** 2)
+       
 
 
         #각도  + - 튀기는 것 수정한 부분입니다
@@ -252,31 +267,28 @@ class CarController:
         else :
             err_degree_convert = err_degree
         
-        
-
-        # 짜잘한 움직임을 제한하기 위해 0도 근처 값 제한
-        #if abs(err_degree_convert) < math.pi /30:
-        #    err_degree_convert = 0
-    
         try:
-            # print(math.degrees(err_degree), math.degrees(target_degree), math.degrees(orientation_z))
-            coordinates_degree = math.degrees(math.atan2(coordinates[self.coord_index+5][1]-coordinates[self.coord_index+4][1],
-                                                coordinates[self.coord_index+5][0]-coordinates[self.coord_index+4][0]))
+        
+            coordinates_degree = math.degrees(math.atan2(coordinates[self.coord_index+1][1]
+            -coordinates[self.coord_index+0][1],coordinates[self.coord_index+1][0]-coordinates[self.coord_index+0][0]))
         except:
             coordinates_degree = 0
 
-        distance = self.pid_distance_curve.feedback(err_distance)
+        distance = 0.2
         degree = self.pid_degrees_curve.feedback(err_degree_convert)
-        if (err_distance<2 ) :
+        if (err_distance<1 ) :
             self.coord_index += 1
-                
-            
-        
-        
+
+        if self.coord_index == len(coordinates)-1:
+            done = True
+            self.coordinates = []
+        else:
+            done = False    
+
         
 
         self.moveCar(distance, degree)
-        d = self.getDistanceFromStraightLine((pos_x, pos_y))
+        d = 0
 
         print ("target", math.degrees(target_degree_convert))
         print ("orentation", math.degrees(orientation_z_convert))
@@ -284,103 +296,7 @@ class CarController:
         print ("err_distance", err_distance)
         print ("d", d)
         print("++++++++++++++++++++curve++++++++++++++++++")
-        return done, d, coordinates_degree , err_degree_convert  
-
-    def compute_3(self, coordinates):
-        if len(self.coordinates) == 0:
-            self.coordinates = coordinates
-        
-        car_state = self.client.getCarState()
-
-        pos_x = car_state.kinematics_estimated.position.x_val
-        pos_y = car_state.kinematics_estimated.position.y_val
-        target = airsim.Vector3r(coordinates[self.coord_index][0],coordinates[self.coord_index][1],0)
-        target_1 = airsim.Vector3r(coordinates[self.coord_index+5][0],coordinates[self.coord_index+5][1],0)    
-        target_x = target.x_val
-        target_1_x = target_1.x_val
-        target_y = target.y_val
-        target_1_y = target_1.y_val
-        print("ddddddddddddddddddddddddddddd")
-        
-        print("target", target_x,target_y)
-        print("pos", pos_x, pos_y)
-        err_x = target_x - pos_x
-        err_x_1 = target_1_x - pos_x
-        err_y = target_y - pos_y
-        err_y_1 = target_1_y - pos_y
-        err_distance = math.sqrt(err_x ** 2 + err_y ** 2)
-        # print (err_distance)
-       
-
-        if self.coord_index == len(coordinates):
-            done = True
-            self.coordinates = []
-        else:
-            done = False
-
-
-        #각도  + - 튀기는 것 수정한 부분입니다
-        x = car_state.kinematics_estimated.orientation.x_val
-        y = car_state.kinematics_estimated.orientation.y_val
-        z = car_state.kinematics_estimated.orientation.z_val
-        w = car_state.kinematics_estimated.orientation.w_val
-        orientation_z = math.atan2(2*(x*y+z*w),x*x-y*y-z*z+w*w)
-        if orientation_z < 0 :
-            orientation_z_convert = math.pi*2 + orientation_z
-        else :
-            orientation_z_convert = orientation_z
-        target_degree = math.atan2(err_y_1,err_x_1)
-        if target_degree < 0 :
-            target_degree_convert = math.pi*2 + target_degree
-        else :
-
-            target_degree_convert = target_degree
-        err_degree = target_degree_convert - orientation_z_convert
-        if err_degree > math.pi : 
-            err_degree_convert = err_degree - math.pi*2
-        elif err_degree < -math.pi :
-            err_degree_convert = math.pi*2 + err_degree
-        else :
-            err_degree_convert = err_degree
-        
-        
-
-        # 짜잘한 움직임을 제한하기 위해 0도 근처 값 제한
-        #if abs(err_degree_convert) < math.pi /30:
-        #    err_degree_convert = 0
-    
-        try:
-            # print(math.degrees(err_degree), math.degrees(target_degree), math.degrees(orientation_z))
-            coordinates_degree = math.degrees(math.atan2(coordinates[self.coord_index+3][1]-coordinates[self.coord_index+2][1],
-                                                coordinates[self.coord_index+3][0]-coordinates[self.coord_index+2][0]))
-        except:
-            coordinates_degree = 0
-
-        
-        distance = self.pid_distance_escape.feedback(err_distance)
-        degree = self.pid_degrees_escape.feedback(err_degree_convert)
-        if (err_distance<0.8 ) :
-            self.coord_index += 1
-                
-            
-        
-        
-        
-
-        self.moveCar(distance, degree)
-        d = self.getDistanceFromStraightLine((pos_x, pos_y))
-
-        print ("target", math.degrees(target_degree_convert))
-        print ("orentation", math.degrees(orientation_z_convert))
-        print ("err_degree", math.degrees(err_degree_convert))
-        print ("err_distance", err_distance)
-        print ("d", d)
-        print("ddddddddddddddddddddddddddddddddddddddddddddddd")
-        return done, d, coordinates_degree  ,err_degree_convert 
-
-
-
-
+        return done, d, coordinates_degree, err_degree_convert  
 
 
     def getDistanceFromStraightLine(self, car_pos):
@@ -418,6 +334,11 @@ class CarController:
             return y - slope * x
         else:
             return None
+
+    
+            
+
+
 
     
             
