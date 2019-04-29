@@ -62,7 +62,7 @@ class CarController:
         self.coordinates = []
 
         self.pid_distance_staright= PID(dt=0.05, Kp=1, Ki=0, Kd=0.001)
-        self.pid_degrees_straight = PID(dt=0.05, Kp=0.1, Ki=0, Kd=0.001)
+        self.pid_degrees_straight = PID(dt=0.05, Kp=1, Ki=0, Kd=0.001)
         self.pid_distance_curve = PID(dt=0.05, Kp=0.1, Ki=0, Kd=0.001)
         self.pid_degrees_curve = PID(dt=0.05, Kp=3, Ki=0, Kd=1)
         self.pid_distance_escape= PID(dt=0.05, Kp=0.2, Ki=0.001, Kd=0.001)
@@ -162,8 +162,8 @@ class CarController:
         
 
         # 짜잘한 움직임을 제한하기 위해 0도 근처 값 제한
-        #if abs(err_degree_convert) < math.pi /30:
-        #    err_degree_convert = 0
+        if abs(err_degree_convert) < math.pi /30:
+            err_degree_convert = 0
     
         try:
             # print(math.degrees(err_degree), math.degrees(target_degree), math.degrees(orientation_z))
@@ -177,7 +177,7 @@ class CarController:
     
         distance = self.pid_distance_staright.feedback(err_distance)
         degree = self.pid_degrees_straight.feedback(err_degree_convert)
-        if (err_distance<0.3) :
+        if (err_distance<0.5) :
             self.coord_index += 1
         
         
