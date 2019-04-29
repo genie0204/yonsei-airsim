@@ -38,43 +38,54 @@ if __name__=='__main__':
             car_controller.setPosition(start_point, start_direction)
             time.sleep(3)
         
-        # exit(0)
-        print (math.degrees(start_direction))
-        print (start_point)
-        time.sleep(3)
+        
         
         
         #pid
         while True :
+
             
+
         
+
             
+
             
+
             if coordinates_degree %90 ==0 :    
-                if d < 1 :
-                    time.sleep(0.05)
-                    _, d, coordinates_degree,err_degree = car_controller.compute_1(coordinates)
-                    print (math.degrees(start_direction))
-                    print (start_point)
+
+               
+
+                time.sleep(0.05)
+
+                _, d, coordinates_degree,err_degree = car_controller.compute_1(coordinates)
+
+
         
-                else :
-                    time.sleep(0.05)
-                    _, d, coordinates_degree,err_degree =car_controller.compute_3(coordinates)
-                    
+
+    
+
              
+
             # print("Center Distance", center_distance)
+
             
+
             else :
+
                 for i in range (100) :
+
                     time.sleep(0.05)
+
                     _, d, coordinates_degree,err_degree = car_controller.compute_2(coordinates)
-                    print(coordinates_degree)
+
+                
+
+
+                    
 
 
         car_controller.coord_index = 1
 
 
         
-
-
-
