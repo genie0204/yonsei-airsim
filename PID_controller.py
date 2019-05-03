@@ -56,7 +56,7 @@ class CarController:
         self.car_name = car_name
 
         self.car_controls = airsim.CarControls()
-        self.client.setCarControls(self.car_controls)
+        self.client.setCarControls(self.car_controls, vehicle_name=self.car_name)
 
         self.coord_index = 1
         self.coordinates = []
@@ -64,22 +64,37 @@ class CarController:
         
         self.pid_degrees_straight = PID(dt=0.05, Kp=0.5, Ki=0, Kd=0.001)
         self.pid_degrees_curve = PID(dt=0.05, Kp=5, Ki=0, Kd=1)
+
+        self.pos_xs = []
+        self.pos_ys = []
       
+    def storePos(self, x, y):
+        self.pos_xs.append(x)
+        self.pos_ys.append(y)
 
     def setPosition(self, point, direction):
         self.car_controls.position = airsim.Vector3r(point[0],point[1],0)
         self.car_controls.heading = airsim.utils.to_quaternion(0,0,direction)
         self.car_controls.pose = airsim.Pose(self.car_controls.position,self.car_controls.heading)
 
-        self.client.simSetVehiclePose(self.car_controls.pose, True,vehicle_name= self.car_name)
+        self.client.simSetVehiclePose(self.car_controls.pose, True, vehicle_name= self.car_name)
+
+    def getPosition(self):
+        car_state = self.client.getCarState(vehicle_name=self.car_name)
+
+        pos_x = car_state.kinematics_estimated.position.x_val
+        pos_y = car_state.kinematics_estimated.position.y_val
+
+        return pos_x, pos_y
 
     def moveCar(self, distance, degree):
         # car_controls = airsim.CarControls()
         self.car_controls.throttle = distance
         self.car_controls.steering = degree
        
-        self.client.setCarControls(self.car_controls)
-        car_state = self.client.getCarState()
+        self.client.setCarControls(self.car_controls, vehicle_name=self.car_name)
+        car_state = self.client.getCarState(vehicle_name=self.car_name)
+        # print(self.car_name, car_state)
         pos_x = car_state.kinematics_estimated.position.x_val
         pos_y = car_state.kinematics_estimated.position.y_val
 
@@ -90,9 +105,10 @@ class CarController:
             self.car_controls.throttle = 0
             self.car_controls.steering = 0
 
-            self.client.setCarControls(self.car_controls)
+            self.client.setCarControls(self.car_controls, vehicle_name=self.car_name)
 
-            if self.client.getCarState().speed < 0.01:
+            # if self.client.getCarState(vehicle_name=self.car_name).speed < 0.01:
+            if self.client.getCarState(vehicle_name=self.car_name).speed < 0.1:
                 break
 
         return True
@@ -130,20 +146,39 @@ class CarController:
             return y - slope * x
         else:
             return None
+
+    def keepTrack(self, coordinates):
+        car_state = self.client.getCarState(vehicle_name=self.car_name)
+
+        pos_x = car_state.kinematics_estimated.position.x_val
+        pos_y = car_state.kinematics_estimated.position.y_val
+        # print(pos_x, pos_y)
+        self.storePos(pos_x, pos_y)
+        target = airsim.Vector3r(coordinates[self.coord_index][0],coordinates[self.coord_index][1],0)
+        target_x = target.x_val
+        target_y = target.y_val
+        err_x = target_x - pos_x
+        err_y = target_y - pos_y
+        err_distance = math.sqrt(err_x ** 2 + err_y ** 2)
+
+        if (err_distance<0.5) :
+            self.coord_index += 1
     
     def compute_straight(self, coordinates):
 
-        print ('==================straigth==================')
+        # print ('==================straigth==================')
         if len(self.coordinates) == 0:
             self.coordinates = coordinates
 
         else:
             done = False    
         
-        car_state = self.client.getCarState()
+        car_state = self.client.getCarState(vehicle_name=self.car_name)
 
         pos_x = car_state.kinematics_estimated.position.x_val
         pos_y = car_state.kinematics_estimated.position.y_val
+        # print(pos_x, pos_y)
+        self.storePos(pos_x, pos_y)
         target = airsim.Vector3r(coordinates[self.coord_index][0],coordinates[self.coord_index][1],0)
         target_x = target.x_val
         target_y = target.y_val
@@ -158,7 +193,6 @@ class CarController:
             self.coordinates = []
         else:
             done = False
-
 
         #각도  + - 튀기는 것 수정한 부분입니다
         x = car_state.kinematics_estimated.orientation.x_val
@@ -220,18 +254,18 @@ class CarController:
 
     def compute_left(self, coordinates):
 
-        print("++++++++++++++++++++left++++++++++++++++++")
+        # print("++++++++++++++++++++left++++++++++++++++++")
         if len(self.coordinates) == 0:
             self.coordinates = coordinates
         
         else:
             done = False
-        car_state = self.client.getCarState()
+        car_state = self.client.getCarState(vehicle_name=self.car_name)
 
         pos_x = car_state.kinematics_estimated.position.x_val
         
         pos_y = car_state.kinematics_estimated.position.y_val
-        
+        self.storePos(pos_x, pos_y)
         target = airsim.Vector3r(coordinates[self.coord_index][0],coordinates[self.coord_index][1],0)
 
         target_1 = airsim.Vector3r(coordinates[self.coord_index+1][0],coordinates[self.coord_index+1][1],0)
@@ -307,16 +341,19 @@ class CarController:
 
     def compute_right(self, coordinates):
 
-        print("++++++++++++++++++++rigth++++++++++++++++++")
+        # print("++++++++++++++++++++rigth++++++++++++++++++")
         if len(self.coordinates) == 0:
             self.coordinates = coordinates
         
         else:
             done = False
-        car_state = self.client.getCarState()
+        car_state = self.client.getCarState(vehicle_name=self.car_name)
 
         pos_x = car_state.kinematics_estimated.position.x_val
         pos_y = car_state.kinematics_estimated.position.y_val
+
+        self.storePos(pos_x, pos_y)
+        
         target = airsim.Vector3r(coordinates[self.coord_index][0],coordinates[self.coord_index][1],0)
 
         target_1 = airsim.Vector3r(coordinates[self.coord_index+1][0],coordinates[self.coord_index+1][1],0)

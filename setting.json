@@ -125,6 +125,76 @@
         }
       }
 
+    },
+    "Car2": {
+      "VehicleType": "PhysXCar",
+      "Cameras": {
+        "MyCamera1": {
+          "CaptureSettings": [
+            {
+              "ImageType": 0,
+              "Width": 256,
+              "Height": 144,
+              "FOV_Degrees": 100
+            }
+          ],
+          "X": 1.87,
+          "Y": 0,
+          "Z": -1.1,
+          "Pitch": -15,
+          "Roll": 0,
+          "Yaw": 0
+        },
+        "MyCamera2": {
+          "CaptureSettings": [
+            {
+              "ImageType": 0,
+              "Width": 256,
+              "Height": 144,
+              "FOV_Degrees": 100
+            }
+          ],
+          "X": 0,
+          "Y": -0.55,
+          "Z": -1.6,
+          "Pitch": -15,
+          "Roll": 0,
+          "Yaw": -90
+        },
+        "MyCamera3": {
+          "CaptureSettings": [
+            {
+              "ImageType": 0,
+              "Width": 256,
+              "Height": 144,
+              "FOV_Degrees": 100
+            }
+          ],
+          "X": 0,
+          "Y": 0.55,
+          "Z": -1.6,
+          "Pitch": -15,
+          "Roll": 0,
+          "Yaw": 90
+        },
+        "MyCamera4": {
+          "CaptureSettings": [
+            {
+              "ImageType": 0,
+              "Width": 256,
+              "Height": 144,
+              "FOV_Degrees": 100
+            }
+          ],
+          "X": -1.97,
+          "Y": 0,
+          "Z": -1.1,
+          "Pitch": -15,
+          "Roll": 0,
+          "Yaw": 180
+        }
+      }
+
     }
   }
 }
